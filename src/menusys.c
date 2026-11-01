@@ -18,6 +18,7 @@
 #include "include/ioman.h"
 #include "include/sound.h"
 #include <assert.h>
+#include <strings.h>
 
 enum MENU_IDs {
     MENU_SETTINGS = 0,
@@ -523,7 +524,7 @@ void submenuSort(submenu_list_t **submenu)
             char *txt1 = submenuItemGetText(&tip->item);
             char *txt2 = submenuItemGetText(&nxt->item);
 
-            int cmp = stricmp(txt1, txt2);
+            int cmp = strcasecmp(txt1, txt2);
 
             if (cmp > 0) {
                 swap(tip, nxt);
