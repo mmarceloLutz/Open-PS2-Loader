@@ -30,7 +30,7 @@ jobs:
 
     - name: Upload release artifact
       if: ${{ success() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: OPNPS2LD
         path: OPNPS2LD.ZIP
@@ -40,7 +40,7 @@ jobs:
 
     - name: Upload changelog for variants artifact 
       if: ${{ success() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: OPNPS2LD-VARIANTS
         path: |
@@ -78,7 +78,7 @@ jobs:
 
     - name: Upload variants artifact
       if: ${{ success() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: OPNPS2LD-VARIANTS
         path: |
