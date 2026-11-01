@@ -42,6 +42,10 @@ int usb_probe(int devId)
     config = (UsbConfigDescriptor *)UsbGetDeviceStaticDescriptor(devId, device, USB_DT_CONFIG);
     interface = (UsbInterfaceDescriptor *)((char *)config + config->bLength);
 
+    if (device->idVendor == 0x2DC8 &&
+        (device->idProduct == 0x3016 || device->idProduct == 0x3015))
+        return 1;
+
     if (interface->bInterfaceClass != USB_CLASS_HID)
         return 0;
 
@@ -79,7 +83,8 @@ int usb_connect(int devId)
     device = (UsbDeviceDescriptor *)UsbGetDeviceStaticDescriptor(devId, NULL, USB_DT_DEVICE);
     config = (UsbConfigDescriptor *)UsbGetDeviceStaticDescriptor(devId, device, USB_DT_CONFIG);
     interface = (UsbInterfaceDescriptor *)((char *)config + config->bLength);
-    hiddev[pad].is_8bitdo = (device->idVendor == 0x2DC8 && device->idProduct == 0x3016);
+    hiddev[pad].is_8bitdo = (device->idVendor == 0x2DC8 &&
+                        (device->idProduct == 0x3016 || device->idProduct == 0x3015));
     hid = (UsbHidDescriptor *)UsbGetDeviceStaticDescriptor(devId, interface, USB_DT_HID);
     epCount = interface->bNumEndpoints - 1;
     endpoint = (UsbEndpointDescriptor *)UsbGetDeviceStaticDescriptor(devId, NULL, USB_DT_ENDPOINT);
