@@ -97,15 +97,19 @@ int usb_connect(int devId)
     } while (epCount--);
 
     if (hiddev[pad].interruptEndp < 0) {
-        usb_release(pad);
-        return 1;
-    }
+    usb_release(pad);
+    return 1;
+}
+
+    if (!hiddev[pad].is_8bitdo) {
     hid_report_size = (hid->Sub[0].wDescriptorLengthL | hid->Sub[0].wDescriptorLengthH << 8);
     UsbControlTransfer(hiddev[pad].controlEndp, (USB_DIR_IN | USB_TYPE_STANDARD | USB_RECIP_INTERFACE), USB_REQ_GET_DESCRIPTOR, (hid->Sub[0].bDescriptorType << 8), interface->bInterfaceNumber, 512, buf, NULL, NULL);
     DelayThread(10000);
     read_report_descriptor(buf, hid_report_size, &hiddev[pad].rep);
-    UsbSetDeviceConfiguration(hiddev[pad].controlEndp, config->bConfigurationValue, usb_config_set, (void *)pad);
-    SignalSema(hiddev[pad].sema);
+}
+
+UsbSetDeviceConfiguration(hiddev[pad].controlEndp, config->bConfigurationValue, usb_config_set, (void *)pad);
+SignalSema(hiddev[pad].sema);
 
     return 0;
 }
@@ -189,10 +193,142 @@ static void read_report(u8 *data, int pad)
     int i, count, pos, bits;
     u8 up = 0, down = 0, left = 0, right = 0, mask;
 
+if (hiddev[pad].is_8bitdo) {
+    if (data[0] != 0x01)
+        return;
 
+    /* Todos os botoes comecam soltos */
+    hiddev[pad].data[0] = 0xFF;
+    hiddev[pad].data[1] = 0xFF;
+
+    /* Botao A do 8BitDo = X do PS2 */
+if (data[1] & 0x01)
+    hiddev[pad].data[1] &= ~0x40;
+    /* Botao B do 8BitDo = Circulo do PS2 */
+if (data[1] & 0x02)
+    hiddev[pad].data[1] &= ~0x20;
+    /* Botao X do 8BitDo = Quadrado do PS2 */
+if (data[1] & 0x08)
+        hiddev[pad].data[1] &= ~0x80;
+        /* Botao Y do 8BitDo = Triangulo do PS2 */
+if (data[1] & 0x10)
+        hiddev[pad].data[1] &= ~0x10;
+    
+    /* Botao LB do 8BitDo = L1 do PS2 */
+if (data[1] & 0x40)
+    hiddev[pad].data[1] &= ~0x04;
+    /* Botao RB do 8BitDo = R1 do PS2 */
+if (data[1] & 0x80)
+    hiddev[pad].data[1] &= ~0x08;
+    /* Botao LT do 8BitDo = L2 do PS2 */
+if (data[2] & 0x01)
+    hiddev[pad].data[1] &= ~0x01;
+    /* Botao RT do 8BitDo = R2 do PS2 */
+if (data[2] & 0x02)
+    hiddev[pad].data[1] &= ~0x02;
+    
+    /* Botao Select do 8BitDo = Select do PS2 */
+if (data[2] & 0x04)
+    hiddev[pad].data[0] &= ~0x01;
+    /* Botao Start do 8BitDo = Start do PS2 */
+if (data[2] & 0x08)
+    hiddev[pad].data[0] &= ~0x08;
+    
+    /* Botao L3 do 8BitDo = L3 do PS2 */
+if (data[2] & 0x20)
+    hiddev[pad].data[0] &= ~0x02;
+    /* Botao R3 do 8BitDo = R3 do PS2 */
+if (data[2] & 0x40)
+    hiddev[pad].data[0] &= ~0x04;
+    /* Direcional digital do 8BitDo */
+    
+switch (data[3] & 0x0F) {
+    case 0: // Cima
+        hiddev[pad].data[0] &= ~0x10;
+        break;
+    
+    case 1: // Cima + Direita
+    hiddev[pad].data[0] &= ~0x10;
+    hiddev[pad].data[0] &= ~0x20;
+    break;
+
+    case 2: // Direita
+    hiddev[pad].data[0] &= ~0x20;
+    break;
+
+    case 3: // Baixo + Direita
+    hiddev[pad].data[0] &= ~0x40;
+    hiddev[pad].data[0] &= ~0x20;
+    break;
+
+    case 4: // Baixo
+    hiddev[pad].data[0] &= ~0x40;
+    break;
+
+    case 5: // Baixo + Esquerda
+    hiddev[pad].data[0] &= ~0x40;
+    hiddev[pad].data[0] &= ~0x80;
+    break;
+
+    case 6: // Esquerda
+    hiddev[pad].data[0] &= ~0x80;
+    break;
+
+    case 7: // Cima + Esquerda
+    hiddev[pad].data[0] &= ~0x10;
+    hiddev[pad].data[0] &= ~0x80;
+    break;
+
+    case 0x0F: // Nenhuma direcao pressionada
+    break;
+}
+
+    /* Pressao do botao X do PS2 */
+hiddev[pad].data[12] = (data[1] & 0x01) ? 255 : 0;
+    /* Pressao do botao Circulo do PS2 */
+hiddev[pad].data[11] = (data[1] & 0x02) ? 255 : 0;
+    /* Pressao do botao Quadrado do PS2 */
+hiddev[pad].data[13] = (data[1] & 0x08) ? 255 : 0;
+    /* Pressao do botao Triangulo do PS2 */
+hiddev[pad].data[10] = (data[1] & 0x10) ? 255 : 0;
+    /* Pressao do botao L1 do PS2 */
+hiddev[pad].data[14] = (data[1] & 0x40) ? 255 : 0;
+    /* Pressao do botao R1 do PS2 */
+hiddev[pad].data[15] = (data[1] & 0x80) ? 255 : 0;
+    /* Pressao do botao L2 do PS2 */
+hiddev[pad].data[16] = (data[2] & 0x01) ? 255 : 0;
+    /* Pressao do botao R2 do PS2 */
+hiddev[pad].data[17] = (data[2] & 0x02) ? 255 : 0;
+    /* Pressao do direcional Direita do PS2 */
+hiddev[pad].data[6] = ((data[3] & 0x0F) == 1 ||
+                       (data[3] & 0x0F) == 2 ||
+                       (data[3] & 0x0F) == 3) ? 255 : 0;
+    /* Pressao do direcional Esquerda do PS2 */
+hiddev[pad].data[7] = ((data[3] & 0x0F) == 5 ||
+                       (data[3] & 0x0F) == 6 ||
+                       (data[3] & 0x0F) == 7) ? 255 : 0;
+    /* Pressao do direcional Cima do PS2 */
+hiddev[pad].data[8] = ((data[3] & 0x0F) == 7 ||
+                       (data[3] & 0x0F) == 0 ||
+                       (data[3] & 0x0F) == 1) ? 255 : 0;
+    /* Pressao do direcional Baixo do PS2 */
+hiddev[pad].data[9] = ((data[3] & 0x0F) == 3 ||
+                       (data[3] & 0x0F) == 4 ||
+                       (data[3] & 0x0F) == 5) ? 255 : 0;
+    
+    /* Analogicos do 8BitDo */
+    hiddev[pad].data[2] = data[6]; // Direito X
+    hiddev[pad].data[3] = data[7]; // Direito Y
+    hiddev[pad].data[4] = data[4]; // Esquerdo X
+    hiddev[pad].data[5] = data[5]; // Esquerdo Y
+
+    return;
+}
+    
     if (data[0] == 0x01) {
         hiddev[pad].data[0] = 0x00;
         hiddev[pad].data[1] = 0x00;
+        
         count = 4;
         if (hiddev[pad].rep.axes.count < 4)
             count = hiddev[pad].rep.axes.count;
