@@ -25,7 +25,7 @@ jobs:
             -v "$PWD:/src" \
             -w /src \
             ps2dev/ps2dev:latest \
-            sh -c 'apk add --no-cache make git freetype-dev && git config --global --add safe.directory /src && grep -nE "jpgData|jpgOpenFILE|jpgReadImage|JPG_NORMAL" /usr/local/ps2dev/ps2sdk/samples/rpc/camera/libjpg.h || true && C_INCLUDE_PATH=/usr/include/freetype2 make PADEMU=1'
+            sh -c 'apk add --no-cache make git freetype-dev && git config --global --add safe.directory /src && find /usr/local/ps2dev -iname '*jpg*' -o -iname '*jpeg*' && C_INCLUDE_PATH=/usr/include/freetype2 make PADEMU=1'
       - name: Upload ELF files
         uses: actions/upload-artifact@v4
         with:
