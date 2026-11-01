@@ -10,6 +10,7 @@
 #include "include/pggsm.h"
 #include "include/cheatman.h"
 #include "include/ps2cnf.h"
+#include <strings.h>
 
 #define NEWLIB_PORT_AWARE
 #include <fileXio_rpc.h> // fileXioMount("iso:", ***), fileXioUmount("iso:")
@@ -61,7 +62,7 @@ static int isValidIsoName(char *name, int *pNameLen)
 
     // Minimum is 17 char, GameID (11) + "." (1) + filename (1 min.) + ".iso" (4)
     int size = strlen(name);
-    if (stricmp(&name[size - 4], ".iso") == 0) {
+    if (strcasecmp(&name[size - 4], ".iso") == 0) {
         if ((size >= 17) && (name[4] == '_') && (name[8] == '.') && (name[11] == '.')) {
             *pNameLen = size - 16;
             return GAME_FORMAT_OLD_ISO;
