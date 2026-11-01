@@ -1,0 +1,37 @@
+
+name: Build Modular PADEMU
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Modular PADEMU
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make git python3
+
+      - name: Build using PS2DEV
+        run: |
+          docker run --rm \
+            -v "$PWD:/src" \
+            -w /src \
+            ps2dev/ps2dev:latest \
+            sh -c 'make'
+
+      - name: Upload ELF files
+        uses: actions/upload-artifact@v4
+        with:
+          name: Modular-PADEMU-ELF
+          path: |
+            **/*.ELF
+            **/*.elf
+          if-no-files-found: error
