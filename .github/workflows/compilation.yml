@@ -17,6 +17,7 @@ jobs:
 
     - uses: actions/checkout@v2
     - run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
         git fetch --prune --unshallow
 
     - name: Get version
@@ -30,7 +31,7 @@ jobs:
 
     - name: Upload release artifact
       if: ${{ success() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: OPNPS2LD
         path: OPNPS2LD.ZIP
@@ -40,7 +41,7 @@ jobs:
 
     - name: Upload changelog for variants artifact 
       if: ${{ success() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: OPNPS2LD-VARIANTS
         path: |
@@ -65,6 +66,7 @@ jobs:
 
     - uses: actions/checkout@v2
     - run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
         git fetch --prune --unshallow
 
     - name: Get version
@@ -78,9 +80,9 @@ jobs:
 
     - name: Upload variants artifact
       if: ${{ success() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
-        name: OPNPS2LD-VARIANTS
+        name: OPNPS2LD-VARIANTS-${{ strategy.job-index }}
         path: |
           OPNPS2LD*.ELF
 
