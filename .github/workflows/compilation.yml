@@ -80,7 +80,7 @@ jobs:
       if: ${{ success() }}
       uses: actions/upload-artifact@v4
       with:
-        name: OPNPS2LD-VARIANTS
+        name: OPNPS2LD-VARIANTS-${{ strategy.job-index }}
         path: |
           OPNPS2LD*.ELF
 
