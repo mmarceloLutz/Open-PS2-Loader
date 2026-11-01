@@ -79,6 +79,7 @@ int usb_connect(int devId)
     device = (UsbDeviceDescriptor *)UsbGetDeviceStaticDescriptor(devId, NULL, USB_DT_DEVICE);
     config = (UsbConfigDescriptor *)UsbGetDeviceStaticDescriptor(devId, device, USB_DT_CONFIG);
     interface = (UsbInterfaceDescriptor *)((char *)config + config->bLength);
+    hiddev[pad].is_8bitdo = (device->idVendor == 0x2DC8 && device->idProduct == 0x3016);
     hid = (UsbHidDescriptor *)UsbGetDeviceStaticDescriptor(devId, interface, USB_DT_HID);
     epCount = interface->bNumEndpoints - 1;
     endpoint = (UsbEndpointDescriptor *)UsbGetDeviceStaticDescriptor(devId, NULL, USB_DT_ENDPOINT);
@@ -138,6 +139,7 @@ static void usb_release(int pad)
     hiddev[pad].controlEndp = -1;
     hiddev[pad].interruptEndp = -1;
     hiddev[pad].usb_id = -1;
+    hiddev[pad].is_8bitdo = 0;
     hiddev[pad].lrum = 0;
     hiddev[pad].rrum = 0;
     hiddev[pad].update_rum = 1;
@@ -375,6 +377,7 @@ int _start(int argc, char *argv[])
 
     for (pad = 0; pad < MAX_PADS; pad++) {
         hiddev[pad].usb_id = -1;
+        hiddev[pad].is_8bitdo = 0;
         hiddev[pad].dev.id = -1;
         hiddev[pad].dev.pad_get_data = hidusb_get_data;
         hiddev[pad].dev.pad_set_rumble = hidusb_set_rumble;
