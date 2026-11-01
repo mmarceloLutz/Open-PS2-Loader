@@ -45,6 +45,7 @@ typedef struct
     pad_device_t dev;
     hidreport_t rep;
     int usb_id;
+    int is_8bitdo;
     int sema;
     int cmd_sema;
     int controlEndp;
